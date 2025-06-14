@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Saffra - Dating W&W</title>
+<style>
+  body { background: #1b0000; color: #f9d5d3; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 { color: #d90000; }
+  .profile { background: #2f0000; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+  .profile h2 { margin: 0 0 5px 0; color: #ffa7a7; }
+  .interests { margin-top: 10px; }
+  .interest { display: inline-block; background: #8b0000; padding: 5px 10px; border-radius: 12px; margin-right: 5px; cursor: pointer; }
+  .search { margin-bottom: 20px; }
+  .admin { background: #3a0000; padding: 15px; border-radius: 8px; margin-top: 30px; }
+  button { background: #d90000; border: none; color: white; padding: 8px 15px; cursor: pointer; border-radius: 5px; }
+  input, select { padding: 5px; margin-right: 10px; border-radius: 5px; border: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Saffra 🍓</h1>
+  <p>„nájdeš tu to, čo si doteraz na Tinderi nenašla“</p>
+</header>
+
+<div class="search">
+  <label>Vek od: <input type="number" id="ageFrom" min="18" max="99" value="18" /></label>
+  <label>Vek do: <input type="number" id="ageTo" min="18" max="99" value="99" /></label>
+  <label>Lokalita: <input type="text" id="location" placeholder="Kdekoľvek" /></label>
+  <button onclick="filterProfiles()">Hľadaj</button>
+  <button onclick="resetFilter()">Reset</button>
+</div>
+
+<div id="profiles"></div>
+
+<div class="admin">
+  <h3>Admin: Schvaľovanie profilov</h3>
+  <div id="adminList"></div>
+</div>
+
+<script>
+  const profiles = [
+    {id:1, name:"Zuzka", age:28, location:"Bratislava", interests:["🏳️‍🌈","🎨","📚"], description:"Milujem umenie a knihy.", approved:false},
+    {id:2, name:"Mária", age:32, location:"Košice", interests:["🎶","🚴‍♀️","🍓"], description:"Rada spievam a športujem.", approved:true},
+    {id:3, name:"Lenka", age:24, location:"Trnava", interests:["🎥","🍷","🏳️‍🌈"], description:"Filmy a víno sú moja vášeň.", approved:true},
+  ];
+
+  function renderProfiles(list) {
+    const container = document.getElementById("profiles");
+    container.innerHTML = "";
+    list.forEach(p => {
+      if (!p.approved) return;
+      const div = document.createElement("div");
+      div.className = "profile";
+      div.innerHTML = `
+        <h2>${p.name}, ${p.age}</h2>
+        <div><strong>Lokalita:</strong> ${p.location}</div>
+        <div class="interests">${p.interests.map(i => '<span class="interest">'+i+'</span>').join('')}</div>
+        <p>${p.description}</p>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function renderAdmin() {
+    const admin = document.getElementById("adminList");
+    admin.innerHTML = "";
+    profiles.forEach(p => {
+      if (p.approved) return;
+      const div = document.createElement("div");
+      div.className = "profile";
+      div.innerHTML = `
+        <h4>${p.name}, ${p.age} - ${p.location}</h4>
+        <button onclick="approveProfile(${p.id})">Schváliť</button>
+      `;
+      admin.appendChild(div);
+    });
+  }
+
+  function approveProfile(id) {
+    const profile = profiles.find(p => p.id === id);
+    if (profile) {
+      profile.approved = true;
+      renderProfiles(profiles);
+      renderAdmin();
+    }
+  }
+
+  function filterProfiles() {
+    const ageFrom = parseInt(document.getElementById("ageFrom").value);
+    const ageTo = parseInt(document.getElementById("ageTo").value);
+    const location = document.getElementById("location").value.toLowerCase();
+    const filtered = profiles.filter(p => p.approved && p.age >= ageFrom && p.age <= ageTo && (location === "" || p.location.toLowerCase().includes(location)));
+    renderProfiles(filtered);
+  }
+
+  function resetFilter() {
+    document.getElementById("ageFrom").value = 18;
+    document.getElementById("ageTo").value = 99;
+    document.getElementById("location").value = "";
+    renderProfiles(profiles);
+  }
+
+  renderProfiles(profiles);
+  renderAdmin();
+</script>
+</body>
+</html>
